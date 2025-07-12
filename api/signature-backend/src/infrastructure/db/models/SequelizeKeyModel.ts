@@ -1,13 +1,21 @@
-import { DataTypes, Model } from "sequelize";
+// SequelizeKeyModel.ts
+import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../../config/database";
 
-export class SequelizeKeyModel extends Model {
-  public id!: number;
-  public alias!: string;
-  public publicKey!: string;
+export interface KeyAttributes {
+  id?: number;
+  alias: string;
+  publicKey: string;
 }
 
-SequelizeKeyModel.init(
+export interface KeyCreationAttributes extends Optional<KeyAttributes, "id"> {}
+
+export interface KeyInstance
+  extends Model<KeyAttributes, KeyCreationAttributes>,
+    KeyAttributes {}
+
+export const SequelizeKeyModel = sequelize.define<KeyInstance>(
+  "SequelizeKeyModel",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -21,10 +29,11 @@ SequelizeKeyModel.init(
     publicKey: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: "public_key",
     },
   },
   {
-    sequelize,
     tableName: "llave",
+    timestamps: false,
   }
 );

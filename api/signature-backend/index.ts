@@ -16,6 +16,10 @@ const certificate = fs.readFileSync(
   process.env.SSL_CERT_PATH || "server.crt",
   "utf8"
 );
+
+console.log("certificate", certificate);
+console.log("privateKey", privateKey);
+
 const credentials = { key: privateKey, cert: certificate };
 
 async function start() {
