@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>{{title}}</h1>
+      <p>Generación y consulta de llaves criptográficas</p>
+    </header>
+
+    <main class="main-content">
+      <!-- Sección de Generación de Llaves -->
+      <section class="section">
+        <div class="card">
+          <h2>Generar Par de Llaves</h2>
+          <p class="description">Genera un par de llaves pública y privada. La llave privada se descargará automáticamente.</p>
+          
+          <form [formGroup]="generateForm" (ngSubmit)="generateKeyPair()" class="form">
+            <div class="form-group">
+              <label for="generateAlias">Alias:</label>
+              <input 
+                type="text" 
+                id="generateAlias"
+                formControlName="alias"
+                placeholder="Ingresa un alias único"
+                class="form-input"
+                [class.error]="generateForm.get('alias')?.invalid && generateForm.get('alias')?.touched">
+              <div class="error-message" *ngIf="generateForm.get('alias')?.invalid && generateForm.get('alias')?.touched">
+                <span *ngIf="generateForm.get('alias')?.errors?.['required']">El alias es requerido</span>
+                <span *ngIf="generateForm.get('alias')?.errors?.['minlength']">El alias debe tener al menos 3 caracteres</span>
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+              [disabled]="generateForm.invalid || isGenerating">
+              <span *ngIf="isGenerating" class="loader"></span>
+              {{isGenerating ? 'Generando...' : 'Generar Llaves'}}
+            </button>
+          </form>
+
+          <div class="message success" *ngIf="generateMessage && !generateMessage.includes('Error')">
+            {{generateMessage}}
+          </div>
+          <div class="message error" *ngIf="generateMessage && generateMessage.includes('Error')">
+            {{generateMessage}}
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección de Consulta de Llave Pública -->
+      <section class="section">
+        <div class="card">
+          <h2>Consultar Llave Pública</h2>
+          <p class="description">Consulta la llave pública asociada a un alias existente.</p>
+          
+          <form [formGroup]="consultForm" (ngSubmit)="consultPublicKey()" class="form">
+            <div class="form-group">
+              <label for="consultAlias">Alias:</label>
+              <input 
+                type="text" 
+                id="consultAlias"
+                formControlName="alias"
+                placeholder="Ingresa el alias de la llave"
+                class="form-input"
+                [class.error]="consultForm.get('alias')?.invalid && consultForm.get('alias')?.touched">
+              <div class="error-message" *ngIf="consultForm.get('alias')?.invalid && consultForm.get('alias')?.touched">
+                <span *ngIf="consultForm.get('alias')?.errors?.['required']">El alias es requerido</span>
+                <span *ngIf="consultForm.get('alias')?.errors?.['minlength']">El alias debe tener al menos 3 caracteres</span>
+              </div>
+            </div>
+            
+            <button 
+              type="submit" 
+              class="btn btn-secondary"
+              [disabled]="consultForm.invalid || isConsulting">
+              <span *ngIf="isConsulting" class="loader"></span>
+              {{isConsulting ? 'Consultando...' : 'Consultar Llave'}}
+            </button>
+          </form>
+
+          <div class="message success" *ngIf="consultMessage && !consultMessage.includes('Error')">
+            {{consultMessage}}
+          </div>
+          <div class="message error" *ngIf="consultMessage && consultMessage.includes('Error')">
+            {{consultMessage}}
+          </div>
+
+          <div class="public-key-result" *ngIf="publicKey">
+            <h3>Llave Pública:</h3>
+            <pre class="key-display">{{publicKey}}</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

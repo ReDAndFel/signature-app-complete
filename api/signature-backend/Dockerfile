@@ -16,8 +16,11 @@ COPY . .
 # Compila TypeScript a JavaScript
 RUN npm run build
 
-# Expone el puerto (ajusta si tu server usa otro)
+# Verifica que el archivo compilado existe
+RUN ls -la dist/
+
+# Expone el puerto
 EXPOSE 3000
 
-# Comando para iniciar la API (ajusta si tu entrypoint es diferente)
+# Comando para iniciar la API
 CMD ["npm", "start"]

@@ -4,6 +4,6 @@ import { keyController } from "../../../container";
 const router = Router();
 
 router.post("", keyController.generate);
-router.get("", keyController.getByAlias);
+router.post("/query", keyController.getByAlias);
 
 export default router;

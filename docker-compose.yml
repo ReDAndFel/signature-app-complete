@@ -1,27 +1,29 @@
 services:
   firewall:
-    image: vimagick/iptables
+    image: nginx:alpine
     container_name: firewall
-    cap_add:
-      - NET_ADMIN
-    privileged: true
     ports:
       - "443:443"
+      - "80:80"
     volumes:
       - ./firewall/entrypoint.sh:/entrypoint.sh
+      - ./firewall/nginx-ssl.conf:/etc/nginx/nginx-ssl.conf
+      - ./api/signature-backend/certs:/etc/nginx/ssl:ro
     depends_on:
-      - webapp
-    command: [ "/entrypoint.sh" ]
+      - webapp-angular
+    command: ["/entrypoint.sh"]
     networks:
       - internal_net
 
-  webapp:
-    image: nginx:alpine
-    container_name: webapp
-    volumes:
-      - ./webapp:/usr/share/nginx/html:ro
+  webapp-angular:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    container_name: webapp_angular
     expose:
       - "80"
+    depends_on:
+      - api
     networks:
       - internal_net
     restart: always
