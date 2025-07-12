@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "81b962ff-00dc-44d0-8df4-e91985ee2f98",
+		"name": "API signature-app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25028597"
+	},
+	"item": [
+		{
+			"name": "KeyPair",
+			"item": [
+				{
+					"name": "getByAlias",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"alias\":\"primerKey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:3000/api/key",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"key"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createKeyPair",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"alias\":\"primerKey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:3000/api/key",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"key"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createKeyPair",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"alias\":\"primerKey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:3000/api/key",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"key"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
