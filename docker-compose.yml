@@ -1,0 +1,69 @@
+services:
+  firewall:
+    image: vimagick/iptables
+    container_name: firewall
+    cap_add:
+      - NET_ADMIN
+    privileged: true
+    ports:
+      - "443:443"
+    volumes:
+      - ./firewall/entrypoint.sh:/entrypoint.sh
+    depends_on:
+      - webapp
+    command: [ "/entrypoint.sh" ]
+    networks:
+      - internal_net
+
+  webapp:
+    image: nginx:alpine
+    container_name: webapp
+    volumes:
+      - ./webapp:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+    networks:
+      - internal_net
+    restart: always
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_DB: taller1
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+
+    networks:
+      - internal_net
+
+  api:
+    build:
+      context: ./api/signature-backend
+      dockerfile: Dockerfile
+    container_name: node_api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_USER=admin
+      - DB_PASSWORD=admin1234
+      - DB_NAME=taller1
+    depends_on:
+      - postgres
+    networks:
+      - internal_net
+
+networks:
+  internal_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
