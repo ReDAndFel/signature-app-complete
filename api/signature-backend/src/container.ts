@@ -35,7 +35,6 @@ const getUserById = new GetUserById(userRepository);
 const keyController = new KeyController(generateKeyPair, getPublicKeyByAlias);
 const oAuthController = new OAuthController(
   saveUser,
-  getUserByEmail,
   jwtService
 );
 const userController = new UserController(getUserByEmail, getUserById);

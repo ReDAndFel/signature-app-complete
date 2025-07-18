@@ -11,7 +11,6 @@ dotenv.config();
 export class OAuthController {
   constructor(
     private readonly saveUser: SaveUser,
-    private readonly getUserByEmail: GetUserByEmail,
     private readonly jwtService: JwtService
   ) {}
 
@@ -21,19 +20,15 @@ export class OAuthController {
       return res.status(400).json({ message: "OAuth callback failed" });
     }
 
-    let existingUser = await this.getUserByEmail.execute(user.email);
-
-    if (!existingUser) {
-      existingUser = await this.saveUser.execute(
-        new OAuthUser(
-          user.name,
-          user.email,
-          "Google",
-          user.oauthId,
-          user.avatarUrl
-        )
-      );
-    }
+   const existingUser = await this.saveUser.execute(
+      new OAuthUser(
+        user.name,
+        user.email,
+        "Google",
+        user.oauthId,
+        user.avatarUrl
+      )
+    );
 
     const accessToken = this.jwtService.generate({
       id: existingUser.id,
