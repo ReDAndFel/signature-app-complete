@@ -4,8 +4,6 @@ import { SequelizeKeyModel } from "./models/SequelizeKeyModel";
 
 export class SequelizeKeyRepository implements KeyRepository {
   async saveKey(keyPair: KeyPair): Promise<void> {
-    console.log("Creando con alias:", keyPair.alias);
-    console.log("Creando con publicKey:", keyPair.publicKey);
     try {
       const existing = await SequelizeKeyModel.findByPk(keyPair.id);
       if (existing) {
@@ -14,14 +12,12 @@ export class SequelizeKeyRepository implements KeyRepository {
           publicKey: keyPair.publicKey,
         });
       } else {
-        console.log("Creando nuevo registro con:", keyPair);
         await SequelizeKeyModel.create({
           alias: keyPair.alias,
           publicKey: keyPair.publicKey,
         });
       }
     } catch (err) {
-      console.error("🔥 Error en saveKey:", err);
       throw err;
     }
   }
