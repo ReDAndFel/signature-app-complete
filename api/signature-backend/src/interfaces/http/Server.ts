@@ -5,21 +5,7 @@ import cookieParser from "cookie-parser";
 import keyRoutes from "../../infrastructure/web/routes/key.routes";
 import authRoutes from "../../infrastructure/web/routes/auth.routes";
 import userRoutes from "../../infrastructure/web/routes/user.routes";
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-
-=======
 import fileRoutes from  "../../infrastructure/web/routes/file.routes";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
-import fileRoutes from "../../infrastructure/web/routes/file.routes";
->>>>>>> 64184187e01ce0a25523fb27ff5e7db032083d9d
 import "../../infrastructure/config/passport";
 
 const app = express();
