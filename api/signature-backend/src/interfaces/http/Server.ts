@@ -5,7 +5,8 @@ import cookieParser from "cookie-parser";
 import keyRoutes from "../../infrastructure/web/routes/key.routes";
 import authRoutes from "../../infrastructure/web/routes/auth.routes";
 import userRoutes from "../../infrastructure/web/routes/user.routes";
-import fileRoutes from  "../../infrastructure/web/routes/file.routes";
+import fileRoutes from "../../infrastructure/web/routes/file.routes";
+import "../../infrastructure/config/passport";
 
 const app = express();
 app.use(
