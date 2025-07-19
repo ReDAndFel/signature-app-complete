@@ -3,13 +3,19 @@ import { GenerateKeyPair } from "../../../application/use-cases/GenerateKeyPair"
 import { GetPublicKeyByAlias } from "../../../application/use-cases/GetPublicKeyByAlias";
 
 export class KeyController {
-  constructor(private readonly generateKeyPair: GenerateKeyPair, private readonly getPublicKeyByAlias: GetPublicKeyByAlias) {}
+  constructor(
+    private readonly generateKeyPair: GenerateKeyPair,
+    private readonly getPublicKeyByAlias: GetPublicKeyByAlias
+  ) {}
 
   generate = async (req: Request, res: Response) => {
     const { alias } = req.body;
-    if (!alias) return res.status(400).json({ message: "Alias is required" });
+    const userId = req.userId; 
 
-    const { privateKey } = await this.generateKeyPair.execute(alias);
+    if (!alias) return res.status(400).json({ message: "Alias is required" });
+    if (!userId) return res.status(401).json({ message: "userId is required" });
+
+    const { privateKey } = await this.generateKeyPair.execute(alias, +userId); 
 
     res.setHeader(
       "Content-disposition",
@@ -19,14 +25,12 @@ export class KeyController {
     res.send(privateKey);
   };
 
-
   getByAlias = async (req: Request, res: Response) => {
     const { alias } = req.body;
     if (!alias) return res.status(400).json({ message: "Alias is required" });
 
     const keyPair = await this.getPublicKeyByAlias.execute(alias);
 
-   
     res.send(keyPair);
   };
 }
