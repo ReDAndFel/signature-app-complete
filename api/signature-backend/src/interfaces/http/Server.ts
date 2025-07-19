@@ -9,6 +9,12 @@ import userRoutes from "../../infrastructure/web/routes/user.routes";
 
 =======
 import fileRoutes from  "../../infrastructure/web/routes/file.routes";
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 import "../../infrastructure/config/passport";
 
