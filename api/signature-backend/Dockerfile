@@ -13,11 +13,8 @@ RUN npm install
 # Copia el resto del código fuente
 COPY . .
 
-# Compila TypeScript a JavaScript
-RUN npm run build
-
-# Verifica que el archivo compilado existe
-RUN ls -la dist/
+# Compila TypeScript a JavaScript y muestra contenido generado
+RUN npm run build && ls -R dist
 
 # Expone el puerto
 EXPOSE 3000
