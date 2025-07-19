@@ -47,5 +47,5 @@ export const SequelizeFileModel = sequelize.define<FileInstance>(
             field: "user_id"
         }
     },
-    { tableName: "archivo", timestamps: false }
+    { tableName: "files", timestamps: false }
 );

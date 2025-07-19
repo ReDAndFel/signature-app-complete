@@ -7,6 +7,7 @@ SET row_security = off;
 -- Elimina las tablas si existen
 DROP TABLE IF EXISTS public.keys;
 DROP TABLE IF EXISTS public.users;
+DROP TABLE IF EXISTS public.files;
 
 -- Tabla de usuarios
 CREATE TABLE public.users (
@@ -30,3 +31,14 @@ CREATE TABLE public.keys (
 );
 
 ALTER TABLE public.keys OWNER TO admin;
+
+CREATE TABLE files (
+    id SERIAL PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
+    hash TEXT,
+    path TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_archivo_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+);
+
+ALTER TABLE public.files OWNER TO admin;
