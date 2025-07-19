@@ -29,8 +29,12 @@ export class OAuthController {
       )
     );
 
+    if (!existingUser?.id) {
+      return res.status(500).json({ message: "User ID not generated" });
+    }
+
     const accessToken = this.jwtService.generate({
-      sub: existingUser.id?.toString(),
+      sub: existingUser.id.toString(),
       name: existingUser.name,
       email: existingUser.email,
       avatarUrl: (existingUser as any).avatarUrl,

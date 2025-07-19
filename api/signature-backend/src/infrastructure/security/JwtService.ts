@@ -13,9 +13,13 @@ const defaultSignOptions: SignOptions = {
 };
 
 export class JwtService {
-  generate(payload: object & { sub: string }): string {
+  generate(payload: {
+    sub: string;
+    name: string;
+    email: string;
+    avatarUrl?: string;
+  }): string {
     const jti = crypto.randomUUID();
-
     return jwt.sign({ ...payload, jti }, SECRET, defaultSignOptions);
   }
 
