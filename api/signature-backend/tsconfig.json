@@ -16,8 +16,9 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["index.ts", "src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["index.ts", "src/**/*", "src/types"],
+  "exclude": ["node_modules, dist"]
 }

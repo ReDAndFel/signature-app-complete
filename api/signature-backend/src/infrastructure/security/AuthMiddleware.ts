@@ -11,7 +11,8 @@ export function AuthMiddleware(jwtService: JwtService) {
     if (!token) return res.status(401).json({ message: "Unauthorized" });
 
     try {
-      jwtService.verify(token);
+      const payload = jwtService.verify(token);
+      req.userId = payload.sub;
       next();
     } catch {
       res.status(401).json({ message: "Invalid token" });

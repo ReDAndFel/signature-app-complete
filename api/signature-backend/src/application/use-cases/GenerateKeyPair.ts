@@ -9,10 +9,11 @@ export class GenerateKeyPair {
   ) {}
 
   async execute(
-    alias: string
+    alias: string,
+    userId: number
   ): Promise<{ publicKey: string; privateKey: string }> {
     const { publicKey, privateKey } = this.cryptoService.generateKeyPair();
-    const keyPair = new KeyPair(alias, publicKey);
+    const keyPair = new KeyPair(alias, publicKey, userId);
     await this.keyRepo.saveKey(keyPair);
     return { publicKey: keyPair.publicKey, privateKey };
   }
