@@ -3,8 +3,8 @@ dotenv.config();
 
 import https from "https";
 import fs from "fs";
-import app from "./src/interfaces/http/Server";
-import { sequelize } from "./src/infrastructure/config/database";
+import app from "./interfaces/http/Server";
+import { sequelize } from "./infrastructure/config/database";
 
 const PORT = process.env.PORT || 3000;
 
