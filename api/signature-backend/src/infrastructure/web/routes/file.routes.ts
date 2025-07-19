@@ -1,14 +1,25 @@
 import { Router } from "express";
-import { fileController } from "../../../container";
+import { authMiddleware, fileController } from "../../../container";
 import multer from "multer";
 
-const upload = multer({ dest: 'uploads/' }); 
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, 'uploads/'); // carpeta de destino
+  },
+  filename: (_req, file, cb) => {
+    // Usa el nombre original
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({ storage });
+
 
 const router = Router();
 
-router.post('', upload.single('file'), fileController.upload);
-router.get('/:id', fileController.getById);
-router.put('/:id', fileController.sign);
-router.post('/:id', fileController.verify);
+router.post('', authMiddleware, upload.single('file'), fileController.upload);
+router.get('/:id', authMiddleware, fileController.getById);
+router.put('/:id', authMiddleware, fileController.sign);
+router.post('/:id', authMiddleware, fileController.verify);
 
 export default router;

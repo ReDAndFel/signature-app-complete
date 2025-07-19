@@ -3,6 +3,7 @@ import { UploadFile } from "../../../application/use-cases/UploadFile";
 import { Request, Response } from "express";
 import { VerifyFileSignature } from "../../../application/use-cases/VerifyFileSignature";
 import { SignFile } from "../../../application/use-cases/SignFile";
+import crypto from "crypto";
 
 
 export class FileController {
@@ -18,6 +19,7 @@ export class FileController {
             if (!req.file) {
                 return res.status(400).json({ error: "No file uploaded" });
             }
+
             const userId = req.userId; 
             const file = req.file;
             if (!userId) return res.status(400).json({ error: "User ID is required" });
@@ -44,7 +46,20 @@ export class FileController {
     sign = async (req: Request, res: Response) => {
         try {
             const fileId = +req.params.id;
-            const { privateKey } = req.body;
+            let rawKey = req.body.privateKey as string;
+
+            rawKey = rawKey
+                .replace(/-----BEGIN RSA PRIVATE KEY-----/, '-----BEGIN RSA PRIVATE KEY-----\n')
+                .replace(/-----END RSA PRIVATE KEY-----/, '\n-----END RSA PRIVATE KEY-----')
+                .replace(/\s+/g, '\n') // agrega saltos de línea intermedios
+
+            console.log("Raw Key:", rawKey);
+
+            const privateKey = crypto.createPrivateKey({
+                key: rawKey,
+                format: 'pem',
+                type: 'pkcs1'
+            });
 
             if (!privateKey) res.status(400).json({ error: "Primary key is required" });
 

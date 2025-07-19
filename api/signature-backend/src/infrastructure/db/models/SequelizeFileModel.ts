@@ -30,7 +30,7 @@ export const SequelizeFileModel = sequelize.define<FileInstance>(
             allowNull: false,
         },
         hash: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: true,
         },
         path: {

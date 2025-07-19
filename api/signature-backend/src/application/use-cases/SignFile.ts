@@ -1,6 +1,6 @@
 import { FileRepository } from "../../domain/repositories/FileRepository";
 import { File } from "../../domain/models/File";
-import crypto from "crypto";
+import crypto, { KeyObject } from "crypto";
 import fs from "fs";
 
 export class SignFile {
@@ -8,19 +8,26 @@ export class SignFile {
         private readonly fileRepository: FileRepository
     ) {}
 
-    async execute(fileId: number, hash: string): Promise<File> {
+    async execute(fileId: number, hash: KeyObject): Promise<File> {
         const file = await this.fileRepository.getFileById(fileId);
         if (!file) throw new Error("File not found");
 
-        const fileBuffer = fs.readFileSync(file.path);
+        try {
 
-        const signature = crypto.createSign('SHA256');
-        signature.update(fileBuffer);
-        signature.end();
-        const sign = signature.sign(hash, 'base64');
+            const fileBuffer = fs.readFileSync(file.path);
 
-        file.hash = sign;
-        await this.fileRepository.updateFileHash(fileId, hash);
+
+            const signature = crypto.createSign('SHA256');
+            signature.update(fileBuffer);
+            signature.end();
+            const sign = signature.sign(hash, 'base64');
+            
+            file.hash = sign;
+            await this.fileRepository.updateFileHash(fileId, hash);
+        }
+        catch (error: any) {
+            throw new Error(`Error signing file: ${error.message}`);
+        }
 
         return file;
     }
