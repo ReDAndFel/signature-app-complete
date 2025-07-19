@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { SaveUser } from "../../../application/use-cases/SaveUser";
-import { GetUserByEmail } from "../../../application/use-cases/GetUserByEmail";
 import { JwtService } from "../../security/JwtService";
 import { OAuthUser } from "../../../domain/models/User";
 
@@ -20,7 +19,7 @@ export class OAuthController {
       return res.status(400).json({ message: "OAuth callback failed" });
     }
 
-   const existingUser = await this.saveUser.execute(
+    const existingUser = await this.saveUser.execute(
       new OAuthUser(
         user.name,
         user.email,
@@ -31,7 +30,7 @@ export class OAuthController {
     );
 
     const accessToken = this.jwtService.generate({
-      id: existingUser.id,
+      sub: existingUser.id?.toString(),
       name: existingUser.name,
       email: existingUser.email,
       avatarUrl: (existingUser as any).avatarUrl,

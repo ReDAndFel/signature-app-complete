@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { keyController } from "../../../container";
+import { authMiddleware, keyController } from "../../../container";
 
 const router = Router();
 
-router.post("", keyController.generate);
-router.post("/query", keyController.getByAlias);
+router.post("", authMiddleware, keyController.generate);
+router.post("/query", authMiddleware, keyController.getByAlias);
 
 export default router;
