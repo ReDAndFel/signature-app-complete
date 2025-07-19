@@ -29,4 +29,11 @@ export class SequelizeKeyRepository implements KeyRepository {
       ? new KeyPair(key.alias, key.publicKey, key.userId, key.id)
       : null;
   }
+
+  async getPuyblicKeyByUserId(userId: number): Promise<KeyPair | null> {
+    const key = await SequelizeKeyModel.findOne({ where: { userId } });
+    return key
+      ? new KeyPair(key.alias, key.publicKey, key.userId, key.id)
+      : null;
+  }
 }
