@@ -5,8 +5,7 @@ import path from "path";
 export interface FileAttributes {
   id?: number;
   fileName: string;
-  mimeType: string;
-  size: number;
+  hash: string;
   path: string;
   userId?: number;
 }
@@ -30,13 +29,9 @@ export const SequelizeFileModel = sequelize.define<FileInstance>(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        mimeType: {
+        hash: {
             type: DataTypes.STRING,
-            allowNull: false,
-        },
-        size: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
         },
         path: {
             type: DataTypes.STRING,

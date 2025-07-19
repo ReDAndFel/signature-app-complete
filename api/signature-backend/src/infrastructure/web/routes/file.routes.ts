@@ -6,7 +6,8 @@ const upload = multer({ dest: 'uploads/' });
 
 const router = Router();
 
-router.post('/upload', upload.single('file'), fileController.upload);
+router.post('', upload.single('file'), fileController.upload);
 router.get('/:id', fileController.getById);
+router.put('/:id', fileController.sign);
 
 export default router;

@@ -1,6 +1,6 @@
 import { OAuthUser } from "../../domain/models/User";
 import { UserRepository } from "../../domain/repositories/UserRepository";
-import { SequelizeUserModel } from "./models/SequelizeUserModel";
+import { SequelizeUserModel } from "./models/index";
 
 export class SequelizeUserRepository implements UserRepository {
   async saveUser(user: OAuthUser): Promise<OAuthUser> {

@@ -1,10 +1,22 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import { File } from "../../domain/models/File";
 import { FileRepository } from "../../domain/repositories/FileRepository";
 import { SequelizeFileModel } from "./models/SequelizeFileModel";
 
 export class SequelizeFileRepository implements FileRepository {
-    async saveFile(file: File): Promise<File> {
-        const createdFile = await SequelizeFileModel.create({ ...file });
+    async saveFile(file: Express.Multer.File, userId: number): Promise<File> {
+
+        const fileData: File = {
+            fileName: file.originalname,
+            hash: "",
+            path: process.env.PATH_FILES + file.filename,
+            userId: userId
+        }
+
+        const createdFile = await SequelizeFileModel.create({ ...fileData });
         return createdFile.toJSON() as File;
     }
 
@@ -13,10 +25,14 @@ export class SequelizeFileRepository implements FileRepository {
         return serchedFile
     }
 
-    async listFilesByUserId(userId: string): Promise<File[]> {
+    async listFilesByUserId(userId: number): Promise<File[]> {
         const files = await SequelizeFileModel.findAll({
-            where: { userId: parseInt(userId, 10) },
+            where: { userId: userId },
         });
         return files.map(file => file.toJSON() as File);
+    }
+
+    async updateFileHash(id: number, hash: string): Promise<void> {
+        await SequelizeFileModel.update({ hash }, { where: { id } });
     }
 }

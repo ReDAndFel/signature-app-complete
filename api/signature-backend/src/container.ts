@@ -16,6 +16,8 @@ import { SequelizeFileRepository } from "./infrastructure/db/SequelizeFileReposi
 import { UploadFile } from "./application/use-cases/UploadFile";
 import { GetFileById } from "./application/use-cases/GetFileById";
 import { FileController } from "./infrastructure/web/controllers/FileController";
+import { SignFile } from "./application/use-cases/SignFile";
+import { VerifyFileSignature } from "./application/use-cases/VerifyFileSignature";
 
 // Repositories
 const keyRepository = new SequelizeKeyRepository();
@@ -37,6 +39,8 @@ const getUserByEmail = new GetUserByEmail(userRepository);
 const getUserById = new GetUserById(userRepository);
 const uploadFile = new UploadFile(fileRepository);
 const getFileById = new GetFileById(fileRepository);
+const signFile = new SignFile(fileRepository);
+const verifySignature = new VerifyFileSignature(fileRepository, userRepository);
 
 // controllers
 const keyController = new KeyController(generateKeyPair, getPublicKeyByAlias);
@@ -45,5 +49,5 @@ const oAuthController = new OAuthController(
   jwtService
 );
 const userController = new UserController(getUserByEmail, getUserById);
-const fileController = new FileController(uploadFile, getFileById);
+const fileController = new FileController(uploadFile, getFileById, signFile, verifySignature);
 export { keyController, oAuthController, userController, fileController, authMiddleware };
