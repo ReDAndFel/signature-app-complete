@@ -5,7 +5,6 @@ dotenv.config();
 import { File } from "../../domain/models/File";
 import { FileRepository } from "../../domain/repositories/FileRepository";
 import { SequelizeFileModel } from "./models/index";
-import { KeyObject } from "crypto";
 
 export class SequelizeFileRepository implements FileRepository {
     async saveFile(file: Express.Multer.File, userId: number): Promise<File> {
@@ -33,8 +32,7 @@ export class SequelizeFileRepository implements FileRepository {
         return files.map(file => file.toJSON() as File);
     }
 
-    async updateFileHash(id: number, hash: KeyObject): Promise<void> {
-        let hashText = hash.export({ format: 'pem', type: 'pkcs1'}) as string;
-        await SequelizeFileModel.update({ hash: hashText }, { where: { id } });
+    async updateFileHash(id: number, hash: string): Promise<void> {
+        await SequelizeFileModel.update({ hash }, { where: { id } });
     }
 }
