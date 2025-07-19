@@ -1,0 +1,111 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService, User } from '../services/auth.service';
+import { KeyService } from '../services/key.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
+})
+export class DashboardComponent implements OnInit {
+  currentUser: User | null = null;
+  generateForm: FormGroup;
+  consultForm: FormGroup;
+  publicKey: string = '';
+  isGenerating: boolean = false;
+  isConsulting: boolean = false;
+  generateMessage: string = '';
+  consultMessage: string = '';
+
+  constructor(
+    private authService: AuthService,
+    private keyService: KeyService,
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) {
+    this.generateForm = this.formBuilder.group({
+      alias: ['', [Validators.required, Validators.minLength(3)]]
+    });
+
+    this.consultForm = this.formBuilder.group({
+      alias: ['', [Validators.required, Validators.minLength(3)]]
+    });
+  }
+
+  ngOnInit(): void {
+    // Verificar autenticación
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Obtener usuario actual
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+      if (!user) {
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  generateKeyPair(): void {
+    if (this.generateForm.valid) {
+      this.isGenerating = true;
+      this.generateMessage = '';
+      const alias = this.generateForm.get('alias')?.value;
+
+      this.keyService.generateKeyPair(alias).subscribe({
+        next: (blob) => {
+          this.downloadFile(blob, `${alias}_private_key.pem`);
+          this.generateMessage = 'Llave privada generada y descargada exitosamente';
+          this.generateForm.reset();
+          this.isGenerating = false;
+        },
+        error: (error) => {
+          console.error('Error generating key pair:', error);
+          this.generateMessage = 'Error al generar las llaves';
+          this.isGenerating = false;
+        }
+      });
+    }
+  }
+
+  consultPublicKey(): void {
+    if (this.consultForm.valid) {
+      this.isConsulting = true;
+      this.consultMessage = '';
+      this.publicKey = '';
+      const alias = this.consultForm.get('alias')?.value;
+
+      this.keyService.getPublicKey(alias).subscribe({
+        next: (response) => {
+          this.publicKey = response.publicKey || 'No se encontró la llave pública';
+          this.consultMessage = 'Llave pública obtenida exitosamente';
+          this.isConsulting = false;
+        },
+        error: (error) => {
+          console.error('Error getting public key:', error);
+          this.consultMessage = 'Error al consultar la llave pública';
+          this.publicKey = '';
+          this.isConsulting = false;
+        }
+      });
+    }
+  }
+
+  private downloadFile(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+}
