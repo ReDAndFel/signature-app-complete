@@ -44,11 +44,7 @@ export const SequelizeFileModel = sequelize.define<FileInstance>(
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            field: "user_id",
-            references: {
-                model: "users", // Assuming a 'users' table exists
-                key: "id",
-            }
+            field: "user_id"
         }
     },
     { tableName: "archivo", timestamps: false }

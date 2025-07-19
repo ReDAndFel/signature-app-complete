@@ -18,6 +18,7 @@ import { GetFileById } from "./application/use-cases/GetFileById";
 import { FileController } from "./infrastructure/web/controllers/FileController";
 import { SignFile } from "./application/use-cases/SignFile";
 import { VerifyFileSignature } from "./application/use-cases/VerifyFileSignature";
+import { GetPublicKeyByUser } from "./application/use-cases/GetPublicKeyByUser";
 
 // Repositories
 const keyRepository = new SequelizeKeyRepository();
@@ -40,10 +41,11 @@ const getUserById = new GetUserById(userRepository);
 const uploadFile = new UploadFile(fileRepository);
 const getFileById = new GetFileById(fileRepository);
 const signFile = new SignFile(fileRepository);
-const verifySignature = new VerifyFileSignature(fileRepository, userRepository);
+const verifySignature = new VerifyFileSignature(fileRepository, keyRepository);
+const getPublicKeyByUserId = new GetPublicKeyByUser(keyRepository);
 
 // controllers
-const keyController = new KeyController(generateKeyPair, getPublicKeyByAlias);
+const keyController = new KeyController(generateKeyPair, getPublicKeyByAlias, getPublicKeyByUserId);
 const oAuthController = new OAuthController(
   saveUser,
   jwtService

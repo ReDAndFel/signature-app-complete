@@ -18,9 +18,10 @@ export class FileController {
             if (!req.file) {
                 return res.status(400).json({ error: "No file uploaded" });
             }
-            const userId = (req.userId as number); 
+            const userId = req.userId; 
             const file = req.file;
-            const result = await this.uploadFile.execute(file, userId);
+            if (!userId) return res.status(400).json({ error: "User ID is required" });
+            const result = await this.uploadFile.execute(file, +userId);
             return res.status(201).json(result);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });

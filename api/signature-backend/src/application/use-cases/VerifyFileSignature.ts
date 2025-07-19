@@ -1,12 +1,12 @@
 import { FileRepository } from "../../domain/repositories/FileRepository";
-import { UserRepository } from "../../domain/repositories/UserRepository";
+import { KeyRepository } from "../../domain/repositories/KeyRepository";
 import fs from "fs";
 import crypto from "crypto";
 
 export class VerifyFileSignature {
     constructor(
         private readonly fileRepository: FileRepository,
-        private readonly userRepository: UserRepository
+        private readonly keyRepository: KeyRepository
     ) {}
 
     async execute(fileId: number): Promise<boolean> {
@@ -19,13 +19,13 @@ export class VerifyFileSignature {
 
         if (userId === undefined) throw new Error("File does not have an associated userId");
 
-        const user = await this.userRepository.getUserById(userId);
-        if (!user || !user.publicKey) throw new Error("User not found or does not have a public key");
-
+        const key = await this.keyRepository.getPuyblicKeyByUserId(userId);
+        if (!key) throw new Error("Public key not found for user");
+        
         const verify = crypto.createVerify('SHA256');
         verify.update(fileBuffer);
         verify.end();
 
-        return verify.verify(user.publicKey, file.hash, 'base64');
+        return verify.verify(key.publicKey, file.hash, 'base64');
     }
 }

@@ -4,7 +4,7 @@ dotenv.config();
 
 import { File } from "../../domain/models/File";
 import { FileRepository } from "../../domain/repositories/FileRepository";
-import { SequelizeFileModel } from "./models/SequelizeFileModel";
+import { SequelizeFileModel } from "./models/index";
 
 export class SequelizeFileRepository implements FileRepository {
     async saveFile(file: Express.Multer.File, userId: number): Promise<File> {
