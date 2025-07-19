@@ -1,6 +1,6 @@
 import { KeyRepository } from "../../domain/repositories/KeyRepository";
 import { KeyPair } from "../../domain/models/KeyPair";
-import { SequelizeKeyModel } from "./models/SequelizeKeyModel";
+import { SequelizeKeyModel } from "./models/index";
 
 export class SequelizeKeyRepository implements KeyRepository {
   async saveKey(keyPair: KeyPair): Promise<void> {
@@ -15,6 +15,7 @@ export class SequelizeKeyRepository implements KeyRepository {
         await SequelizeKeyModel.create({
           alias: keyPair.alias,
           publicKey: keyPair.publicKey,
+          userId: keyPair.userId,
         });
       }
     } catch (err) {
@@ -24,6 +25,15 @@ export class SequelizeKeyRepository implements KeyRepository {
 
   async getPublicKey(alias: string): Promise<KeyPair | null> {
     const key = await SequelizeKeyModel.findOne({ where: { alias } });
-    return key ? new KeyPair(key.alias, key.publicKey, key.id) : null;
+    return key
+      ? new KeyPair(key.alias, key.publicKey, key.userId, key.id)
+      : null;
+  }
+
+  async getPuyblicKeyByUserId(userId: number): Promise<KeyPair | null> {
+    const key = await SequelizeKeyModel.findOne({ where: { userId } });
+    return key
+      ? new KeyPair(key.alias, key.publicKey, key.userId, key.id)
+      : null;
   }
 }

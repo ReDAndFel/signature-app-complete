@@ -1,0 +1,10 @@
+import { KeyController } from "./infrastructure/web/controllers/KeyController";
+import { OAuthController } from "./infrastructure/web/controllers/OAuthController";
+import { UserController } from "./infrastructure/web/controllers/UserController";
+import { FileController } from "./infrastructure/web/controllers/FileController";
+declare const authMiddleware: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => import("express").Response<any, Record<string, any>> | undefined;
+declare const keyController: KeyController;
+declare const oAuthController: OAuthController;
+declare const userController: UserController;
+declare const fileController: FileController;
+export { keyController, oAuthController, userController, fileController, authMiddleware };

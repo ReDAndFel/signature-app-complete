@@ -5,6 +5,7 @@ export interface KeyAttributes {
   id?: number;
   alias: string;
   publicKey: string;
+  userId: number;
 }
 
 export interface KeyCreationAttributes extends Optional<KeyAttributes, "id"> {}
@@ -30,9 +31,14 @@ export const SequelizeKeyModel = sequelize.define<KeyInstance>(
       allowNull: false,
       field: "public_key",
     },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "user_id",
+    },
   },
   {
-    tableName: "llave",
+    tableName: "keys",
     timestamps: false,
   }
 );
