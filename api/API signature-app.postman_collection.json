@@ -69,23 +69,39 @@
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "File",
+			"item": [
 				{
-					"name": "createKeyPair",
+					"name": "uploadFile",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IkFuZHLDqXMgRmVsaXBlIENhc3RybyBDYXJkb25hIiwiZW1haWwiOiJwaXBlY2FyMzY2QGdtYWlsLmNvbSIsImF2YXRhclVybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0lqQ2pWVWRCZ2JjNHBWRDNCejFrclpudUllaG5uNE5HVUg1bC0yby00enlla2lHSVA3PXM5Ni1jIiwianRpIjoiNTgxODI0MTQtNGNkZS00YzQ2LWJjYWMtMzlhODE1MjhjMjQ0IiwiaWF0IjoxNzUzMDcwOTQwLCJleHAiOjE3NTMwNzQ1NDAsImF1ZCI6InNpZ25hdHVyZS1hcHAtdXNlcnMiLCJpc3MiOiJzaWduYXR1cmUtYXBwIn0.Q1tdPkK_zI9zf3lKPPvL-h1f2ADStTlVj9QV_mjGb-E",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"alias\":\"primerKey\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/pipec/Downloads/hoja de vida maria del pilar cardona villa 2025.pdf"
 								}
-							}
+							]
 						},
 						"url": {
-							"raw": "https://localhost:3000/api/key",
+							"raw": "https://localhost:3000/api/file",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -93,7 +109,94 @@
 							"port": "3000",
 							"path": [
 								"api",
-								"key"
+								"file"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sign",
+			"item": [
+				{
+					"name": "signatureFile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IkFuZHLDqXMgRmVsaXBlIENhc3RybyBDYXJkb25hIiwiZW1haWwiOiJwaXBlY2FyMzY2QGdtYWlsLmNvbSIsImF2YXRhclVybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0lqQ2pWVWRCZ2JjNHBWRDNCejFrclpudUllaG5uNE5HVUg1bC0yby00enlla2lHSVA3PXM5Ni1jIiwianRpIjoiNTgxODI0MTQtNGNkZS00YzQ2LWJjYWMtMzlhODE1MjhjMjQ0IiwiaWF0IjoxNzUzMDcwOTQwLCJleHAiOjE3NTMwNzQ1NDAsImF1ZCI6InNpZ25hdHVyZS1hcHAtdXNlcnMiLCJpc3MiOiJzaWduYXR1cmUtYXBwIn0.Q1tdPkK_zI9zf3lKPPvL-h1f2ADStTlVj9QV_mjGb-E",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/pipec/Downloads/llavecita.pem"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:3000/api/signature/1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"signature",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifySign",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IkFuZHLDqXMgRmVsaXBlIENhc3RybyBDYXJkb25hIiwiZW1haWwiOiJwaXBlY2FyMzY2QGdtYWlsLmNvbSIsImF2YXRhclVybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0lqQ2pWVWRCZ2JjNHBWRDNCejFrclpudUllaG5uNE5HVUg1bC0yby00enlla2lHSVA3PXM5Ni1jIiwianRpIjoiMzI0MTY3ZTgtYzZjNy00MjBmLWI4MjQtYzIyNjFkNjAxZDhmIiwiaWF0IjoxNzUzMDY5MjMzLCJleHAiOjE3NTMwNzI4MzMsImF1ZCI6InNpZ25hdHVyZS1hcHAtdXNlcnMiLCJpc3MiOiJzaWduYXR1cmUtYXBwIn0.8pLm68-0_1PkI-YG9GFxoXIExP0xPsB42QAfknTrVIw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/pipec/Downloads/llavecita.pem"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:3000/api/verify-signature/1",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"verify-signature",
+								"1"
 							]
 						}
 					},
