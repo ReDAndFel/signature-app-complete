@@ -6,6 +6,8 @@ import keyRoutes from "../../infrastructure/web/routes/key.routes";
 import authRoutes from "../../infrastructure/web/routes/auth.routes";
 import userRoutes from "../../infrastructure/web/routes/user.routes";
 import fileRoutes from  "../../infrastructure/web/routes/file.routes";
+import signRoutes from  "../../infrastructure/web/routes/sign.routes";
+
 import "../../infrastructure/config/passport";
 
 const app = express();
@@ -23,5 +25,7 @@ app.use("/api/key", keyRoutes);
 app.use("/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/file", fileRoutes);
+app.use("/api", signRoutes);
+
 
 export default app;

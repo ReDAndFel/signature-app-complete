@@ -1,15 +1,13 @@
--- Configuraciones iniciales
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET row_security = off;
 
--- Elimina las tablas si existen
 DROP TABLE IF EXISTS public.keys;
 DROP TABLE IF EXISTS public.users;
 DROP TABLE IF EXISTS public.files;
+DROP TABLE IF EXISTS public.file_signatures;
 
--- Tabla de usuarios
 CREATE TABLE public.users (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -21,7 +19,6 @@ CREATE TABLE public.users (
 
 ALTER TABLE public.users OWNER TO admin;
 
--- Tabla de claves
 CREATE TABLE public.keys (
   id SERIAL PRIMARY KEY,
   alias VARCHAR(50) NOT NULL,
@@ -42,3 +39,16 @@ CREATE TABLE public.files (
 );
 
 ALTER TABLE public.files OWNER TO admin;
+
+CREATE TABLE public.file_signatures (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    file_id INTEGER NOT NULL,
+    key_id INTEGER NOT NULL,
+    signature TEXT NOT NULL,
+    CONSTRAINT fk_signature_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_signature_file FOREIGN KEY (file_id) REFERENCES public.files(id) ON DELETE CASCADE,
+    CONSTRAINT fk_signature_key FOREIGN KEY (key_id) REFERENCES public.keys(id) ON DELETE CASCADE
+);
+
+ALTER TABLE public.file_signatures OWNER TO admin;

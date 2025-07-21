@@ -6,5 +6,5 @@ export interface FileSignatureRepository {
     getSignatureById(id: number): Promise<SignatureWithFile | null>;
     listSignaturesByFileId(fileId: number): Promise<FileSignatures[]>;
     listSignaturesByUserId(userId: number): Promise<FileSignatures[]>;
-    verifySignature(fileId: number, userId: number): Promise<boolean>;
+    verifySignature(signatureId: number, userId: number): Promise<boolean>;
 }

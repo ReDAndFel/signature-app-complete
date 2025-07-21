@@ -66,13 +66,13 @@ export class FileSignatureController {
 
     verify = async (req: Request, res: Response) => {
         try {
-            const fileId = +req.params.id;
-            if (!fileId) throw new Error("File ID is required");
+            const signatureId = +req.params.id;
+            if (!signatureId) throw new Error("signature ID is required");
 
             if (!req.userId) throw new Error("Usuario no identificado");
             const userId = +req.userId;
 
-            const isValid = await this.verifySignature.execute(fileId, userId);
+            const isValid = await this.verifySignature.execute(signatureId, userId);
             return res.status(200).json({ valid: isValid });
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
