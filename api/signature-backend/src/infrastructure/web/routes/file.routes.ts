@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware, fileController } from "../../../container";
+import { authMiddleware, fileController, signFileController } from "../../../container";
 import multer from "multer";
 
 const storage = multer.diskStorage({
@@ -19,7 +19,10 @@ const router = Router();
 
 router.post('', authMiddleware, upload.single('file'), fileController.upload);
 router.get('/:id', authMiddleware, fileController.getById);
-router.put('/:id', authMiddleware, fileController.sign);
-router.post('/:id', authMiddleware, fileController.verify);
+router.post('/signature/:id', authMiddleware, upload.single('file'), signFileController.sign);
+router.post('/:id', authMiddleware, signFileController.verify);
+router.get('/signature/:id', authMiddleware, signFileController.getSignature);
+router.get('/signature/file/:id', authMiddleware, signFileController.listSignaturesByFile);
+router.get('/signature/user', authMiddleware, signFileController.listSignaturesByUser);
 
 export default router;

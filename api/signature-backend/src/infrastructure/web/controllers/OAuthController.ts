@@ -49,7 +49,7 @@ export class OAuthController {
 
     console.log('Setting cookie with token...');
     res.cookie("accessToken", accessToken, {
-      httpOnly: false,  // Permitir acceso desde JavaScript
+      httpOnly: true,  // Permitir acceso desde JavaScript
       secure: true,
       sameSite: "none",
       maxAge: 3600000, // 1 hora

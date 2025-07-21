@@ -35,25 +35,20 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Verificar autenticación
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    // Obtener usuario actual
-    this.authService.user$.subscribe(user => {
-      this.currentUser = user;
-      if (!user) {
+    // Consultar al backend si el usuario está autenticado
+    this.authService.getCurrentUser().subscribe(user => {
+      if (user) {
+        this.currentUser = user;
+      } else {
         this.router.navigate(['/login']);
       }
     });
   }
 
-  logout(): void {
+/*   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
+  } */
 
   generateKeyPair(): void {
     if (this.generateForm.valid) {
@@ -63,7 +58,7 @@ export class DashboardComponent implements OnInit {
 
       this.keyService.generateKeyPair(alias).subscribe({
         next: (blob) => {
-          this.downloadFile(blob, `${alias}_private_key.pem`);
+          this.downloadFile(blob, `${alias}.pem`);
           this.generateMessage = 'Llave privada generada y descargada exitosamente';
           this.generateForm.reset();
           this.isGenerating = false;

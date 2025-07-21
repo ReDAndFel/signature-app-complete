@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { oAuthController } from "../../../container";
+import { authMiddleware, oAuthController } from "../../../container";
 
 const router = Router();
 
@@ -14,5 +14,14 @@ router.get(
   passport.authenticate("google", { session: false }),
   oAuthController.handleOAuthCallback
 );
+
+router.get(
+  "/me",
+  authMiddleware,
+  (req, res) => {
+    res.json({ userId: req.userId });
+  }
+);
+
 
 export default router;

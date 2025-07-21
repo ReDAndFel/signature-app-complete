@@ -1,7 +1,8 @@
 export class FileSignatures {
     constructor(
         public signature: string,
-        public userId?: number,
-        public fileId?: number,
+        public keyId: number,
+        public userId: number,
+        public fileId: number,
     ) {}
 }

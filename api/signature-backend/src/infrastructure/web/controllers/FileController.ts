@@ -1,16 +1,12 @@
 import { GetFileById } from "../../../application/use-cases/GetFileById";
 import { UploadFile } from "../../../application/use-cases/UploadFile";
 import { Request, Response } from "express";
-import { VerifyFileSignature } from "../../../application/use-cases/VerifyFileSignature";
-import { SignFile } from "../../../application/use-cases/SignFile";
 
 
 export class FileController {
     constructor(
         private readonly uploadFile: UploadFile,
-        private readonly getFileById: GetFileById,
-        private readonly signFile: SignFile, 
-        private readonly verifySignature: VerifyFileSignature
+        private readonly getFileById: GetFileById
     ) {}
 
     upload = async (req: Request, res: Response) => {
@@ -41,33 +37,4 @@ export class FileController {
             return res.status(500).json({ error: error.message });
         }
     }
-
-    sign = async (req: Request, res: Response) => {
-        try {
-            const fileId = +req.params.id;
-            let rawKey = req.body.privateKey as string;
-
-            console.log("Raw Key:", rawKey);
-            
-            if (!rawKey) res.status(400).json({ error: "Primary key is required" });
-
-            const file = await this.signFile.execute(fileId, rawKey);
-            return res.status(200).json({ message: "File signed", file});
-        } catch (error: any) {
-            return res.status(500).json({ error: error.message });
-        }
-    };
-
-    verify = async (req: Request, res: Response) => {
-        try {
-            const fileId = +req.params.id;
-
-            if (!fileId) throw new Error("File ID is required");
-
-            const isValid = await this.verifySignature.execute(fileId);
-            return res.status(200).json({ valid: isValid });
-        } catch (error: any) {
-            return res.status(500).json({ error: error.message });
-        }
-    };
 }

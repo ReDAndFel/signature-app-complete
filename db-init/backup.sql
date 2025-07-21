@@ -32,13 +32,13 @@ CREATE TABLE public.keys (
 
 ALTER TABLE public.keys OWNER TO admin;
 
-CREATE TABLE files (
+CREATE TABLE public.files (
     id SERIAL PRIMARY KEY,
     file_name VARCHAR(255) NOT NULL,
     hash TEXT,
     path TEXT NOT NULL,
     user_id INTEGER NOT NULL,
-    CONSTRAINT fk_archivo_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+    CONSTRAINT fk_archivo_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
 );
 
 ALTER TABLE public.files OWNER TO admin;

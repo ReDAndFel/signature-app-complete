@@ -7,7 +7,7 @@ export interface FileAttributes {
   fileName: string;
   hash: string;
   path: string;
-  userId?: number;
+  userId: number;
 }
 
 export interface FileCreationAttributes
@@ -28,6 +28,7 @@ export const SequelizeFileModel = sequelize.define<FileInstance>(
         fileName: {
             type: DataTypes.STRING,
             allowNull: false,
+            field: "file_name",
         },
         hash: {
             type: DataTypes.TEXT,

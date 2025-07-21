@@ -1,31 +1,17 @@
-import { FileRepository } from "../../domain/repositories/FileRepository";
-import { KeyRepository } from "../../domain/repositories/KeyRepository";
-import fs from "fs";
-import crypto from "crypto";
+import { FileSignatureRepository } from "../../domain/repositories/FileSignatureRepository";
 
 export class VerifyFileSignature {
     constructor(
-        private readonly fileRepository: FileRepository,
-        private readonly keyRepository: KeyRepository
+        private readonly signatureRepository: FileSignatureRepository
     ) {}
 
-    async execute(fileId: number): Promise<boolean> {
-        const file = await this.fileRepository.getFileById(fileId);
-        if (!file || !file.hash) throw new Error("File not found or not signed");
+    async execute(fileId: number, userId: number): Promise<boolean> {
+        const file = await this.signatureRepository.getSignatureById(fileId);
+        console.log("File:", file);
+        if (!file || file.fileId) throw new Error("File not found");
 
-        const fileBuffer = fs.readFileSync(file.path);
+        const verified = await this.signatureRepository.verifySignature(fileId, userId);
 
-        const userId = file.userId;
-
-        if (userId === undefined) throw new Error("File does not have an associated userId");
-
-        const key = await this.keyRepository.getPuyblicKeyByUserId(userId);
-        if (!key) throw new Error("Public key not found for user");
-        
-        const verify = crypto.createVerify('SHA256');
-        verify.update(fileBuffer);
-        verify.end();
-
-        return verify.verify(key.publicKey, file.hash, 'base64');
+        return verified;
     }
 }

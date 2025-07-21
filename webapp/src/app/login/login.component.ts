@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   isLoading = true;
-  
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -17,37 +17,23 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('LoginComponent initialized');
-    
-    // Verificar inmediatamente si ya está autenticado
-    if (this.authService.isAuthenticated()) {
-      console.log('Usuario ya autenticado, redirigiendo...');
-      this.router.navigate(['/dashboard']);
-      return;
-    }
-    
-    // Verificar si hay un token nuevo en cookies (especialmente después del redirect de Google)
-    this.authService.checkForNewToken();
-    
-    // Esperar por un token durante unos segundos (útil después del redirect de Google)
-    this.authService.waitForToken();
-    
-    // Suscribirse a cambios en el estado de autenticación
-    this.authService.user$.subscribe(user => {
-      console.log('Estado de usuario cambió:', user);
-      if (user) {
-        console.log('Usuario logueado, redirigiendo al dashboard');
-        this.router.navigate(['/dashboard']);
-      } else {
+
+    // Llamar a la nueva ruta /auth/me para verificar si ya está autenticado
+    this.authService.getCurrentUser().subscribe({
+      next: user => {
+        if (user) {
+          console.log('Usuario autenticado desde /auth/me:', user);
+          this.authService.setUser(user); // Actualiza el observable user$
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.isLoading = false;
+        }
+      },
+      error: err => {
+        console.log('No autenticado o error al verificar:', err);
         this.isLoading = false;
       }
     });
-    
-    // Si después de un momento no hay usuario, mostrar el login
-    setTimeout(() => {
-      if (!this.authService.isAuthenticated()) {
-        this.isLoading = false;
-      }
-    }, 2000); // Aumentar el tiempo de espera
   }
 
   loginWithGoogle(): void {

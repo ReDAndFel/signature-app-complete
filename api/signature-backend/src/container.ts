@@ -19,11 +19,17 @@ import { FileController } from "./infrastructure/web/controllers/FileController"
 import { SignFile } from "./application/use-cases/SignFile";
 import { VerifyFileSignature } from "./application/use-cases/VerifyFileSignature";
 import { GetPublicKeyByUser } from "./application/use-cases/GetPublicKeyByUser";
+import { SequelizeFileSignatureRepository } from "./infrastructure/db/SequelizeFileSignatureRepository";
+import { FileSignatureController } from "./infrastructure/web/controllers/FileSignatureController";
+import { GetSignatureById } from "./application/use-cases/GetSignatureById";
+import { ListSignaturesByFileId } from "./application/use-cases/ListSignaturesFileById";
+import { ListSignaturesByUserId } from "./application/use-cases/ListSignaturesByUserId";
 
 // Repositories
 const keyRepository = new SequelizeKeyRepository();
 const userRepository = new SequelizeUserRepository();
 const fileRepository = new SequelizeFileRepository(); 
+const fileSignatureRepository = new SequelizeFileSignatureRepository();
 
 //services
 const cryptoService = new NodeCryptoService();
@@ -40,8 +46,11 @@ const getUserByEmail = new GetUserByEmail(userRepository);
 const getUserById = new GetUserById(userRepository);
 const uploadFile = new UploadFile(fileRepository);
 const getFileById = new GetFileById(fileRepository);
-const signFile = new SignFile(fileRepository);
-const verifySignature = new VerifyFileSignature(fileRepository, keyRepository);
+const signFile = new SignFile(fileSignatureRepository, fileRepository);
+const getSignatureById = new GetSignatureById(fileSignatureRepository);
+const listSignaturesByFileId = new ListSignaturesByFileId(fileSignatureRepository);
+const listSignatureByUserId = new ListSignaturesByUserId(fileSignatureRepository);
+const verifySignature = new VerifyFileSignature(fileSignatureRepository);
 const getPublicKeyByUserId = new GetPublicKeyByUser(keyRepository);
 
 // controllers
@@ -51,5 +60,6 @@ const oAuthController = new OAuthController(
   jwtService
 );
 const userController = new UserController(getUserByEmail, getUserById);
-const fileController = new FileController(uploadFile, getFileById, signFile, verifySignature);
-export { keyController, oAuthController, userController, fileController, authMiddleware };
+const fileController = new FileController(uploadFile, getFileById);
+const signFileController = new FileSignatureController(signFile, getSignatureById, listSignaturesByFileId, listSignatureByUserId, verifySignature);
+export { keyController, oAuthController, userController, fileController, signFileController, authMiddleware };

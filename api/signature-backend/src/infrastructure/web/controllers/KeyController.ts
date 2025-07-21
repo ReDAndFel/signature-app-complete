@@ -21,7 +21,7 @@ export class KeyController {
 
     res.setHeader(
       "Content-disposition",
-      `attachment; filename=${alias}_private_key.pem`
+      `attachment; filename=${alias}.pem`
     );
     res.setHeader("Content-type", "application/x-pem-file");
     res.send(privateKey);

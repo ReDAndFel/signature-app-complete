@@ -5,13 +5,20 @@ dotenv.config();
 import { File } from "../../domain/models/File";
 import { FileRepository } from "../../domain/repositories/FileRepository";
 import { SequelizeFileModel } from "./models/index";
+import crypto from "crypto";
+import fs from "fs";
 
 export class SequelizeFileRepository implements FileRepository {
     async saveFile(file: Express.Multer.File, userId: number): Promise<File> {
 
+        // Sacar hash SHA256 del archivo
+        const filePath = process.env.PATH_FILES + file.originalname;
+        const fileBuffer = fs.readFileSync(filePath);
+        const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
         const fileData: File = {
             fileName: file.originalname,
-            hash: "",
+            hash: hash,
             path: process.env.PATH_FILES + file.originalname,
             userId: userId
         }
