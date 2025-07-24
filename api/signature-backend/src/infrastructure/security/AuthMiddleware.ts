@@ -21,7 +21,18 @@ export function AuthMiddleware(jwtService: JwtService) {
 
     try {
       const payload = jwtService.verify(token);
+      
+      if (!payload.sub) {
+        return res.status(401).json({ message: "Invalid token payload" });
+      }
+      
       req.userId = payload.sub;
+      req.userInfo = {
+        id: payload.sub,
+        name: payload.name || '',
+        email: payload.email || '',
+        avatarUrl: payload.avatarUrl || ''
+      };
       next();
     } catch {
       res.status(401).json({ message: "Invalid token" });

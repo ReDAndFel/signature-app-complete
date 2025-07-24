@@ -15,6 +15,7 @@ import { AuthMiddleware } from "./infrastructure/security/AuthMiddleware";
 import { SequelizeFileRepository } from "./infrastructure/db/SequelizeFileRepository";
 import { UploadFile } from "./application/use-cases/UploadFile";
 import { GetFileById } from "./application/use-cases/GetFileById";
+import { ListFilesByUserId } from "./application/use-cases/ListFilesByUserId";
 import { FileController } from "./infrastructure/web/controllers/FileController";
 import { SignFile } from "./application/use-cases/SignFile";
 import { VerifyFileSignature } from "./application/use-cases/VerifyFileSignature";
@@ -46,6 +47,7 @@ const getUserByEmail = new GetUserByEmail(userRepository);
 const getUserById = new GetUserById(userRepository);
 const uploadFile = new UploadFile(fileRepository);
 const getFileById = new GetFileById(fileRepository);
+const listFilesByUserId = new ListFilesByUserId(fileRepository);
 const signFile = new SignFile(fileSignatureRepository, fileRepository);
 const getSignatureById = new GetSignatureById(fileSignatureRepository);
 const listSignaturesByFileId = new ListSignaturesByFileId(fileSignatureRepository);
@@ -60,6 +62,6 @@ const oAuthController = new OAuthController(
   jwtService
 );
 const userController = new UserController(getUserByEmail, getUserById);
-const fileController = new FileController(uploadFile, getFileById);
+const fileController = new FileController(uploadFile, getFileById, listFilesByUserId);
 const signFileController = new FileSignatureController(signFile, getSignatureById, listSignaturesByFileId, listSignatureByUserId, verifySignature);
 export { keyController, oAuthController, userController, fileController, signFileController, authMiddleware };

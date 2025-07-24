@@ -4,115 +4,350 @@
     <div class="header-content">
       <div class="user-info">
         <div class="user-avatar">
-          <img [src]="currentUser?.avatarUrl || '/assets/default-avatar.svg'" 
-               [alt]="currentUser?.name" 
+          <img [src]="(currentUser$ | async)?.avatarUrl || '/assets/default-avatar.svg'" 
+               [alt]="(currentUser$ | async)?.name" 
                class="avatar-img">
         </div>
         <div class="user-details">
-          <h2>Bienvenido, {{currentUser?.name}}</h2>
-          <p>{{currentUser?.email}}</p>
+          <h2>Bienvenido, {{(currentUser$ | async)?.name}}</h2>
+          <p>{{(currentUser$ | async)?.email}}</p>
         </div>
       </div>
-      <!-- <button class="logout-btn" (click)="logout()">
+      <button class="logout-btn" (click)="logout()" *ngIf="currentUser$ | async">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16,17 21,12 16,7"></polyline>
           <line x1="21" y1="12" x2="9" y2="12"></line>
         </svg>
         Cerrar Sesión
-      </button> -->
+      </button>
     </div>
   </header>
 
   <main class="dashboard-main">
     <div class="container">
       <h1 class="main-title">Signature App</h1>
-      <p class="main-subtitle">Generación y consulta de llaves criptográficas</p>
+      <p class="main-subtitle">Generación de llaves y firma de archivos</p>
 
-      <!-- Sección de Generación de Llaves -->
-      <section class="section">
-        <div class="card">
-          <h2>Generar Par de Llaves</h2>
-          <p class="description">Genera un par de llaves pública y privada. La llave privada se descargará automáticamente.</p>
-          
-          <form [formGroup]="generateForm" (ngSubmit)="generateKeyPair()" class="form">
-            <div class="form-group">
-              <label for="generateAlias">Alias:</label>
-              <input 
-                type="text" 
-                id="generateAlias"
-                formControlName="alias"
-                placeholder="Ingresa un alias único"
-                class="form-input"
-                [class.error]="generateForm.get('alias')?.invalid && generateForm.get('alias')?.touched">
-              <div class="error-message" *ngIf="generateForm.get('alias')?.invalid && generateForm.get('alias')?.touched">
-                <span *ngIf="generateForm.get('alias')?.errors?.['required']">El alias es requerido</span>
-                <span *ngIf="generateForm.get('alias')?.errors?.['minlength']">El alias debe tener al menos 3 caracteres</span>
+      <!-- Navegación por pestañas -->
+      <nav class="tabs-nav">
+        <button 
+          class="tab-button"
+          [class.active]="activeTab === 'keys'"
+          (click)="setActiveTab('keys')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+            <circle cx="12" cy="16" r="1"></circle>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Gestión de Llaves
+        </button>
+        <button 
+          class="tab-button"
+          [class.active]="activeTab === 'files'"
+          (click)="setActiveTab('files')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14,2 14,8 20,8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10,9 9,9 8,9"></polyline>
+          </svg>
+          Firma de Archivos
+        </button>
+      </nav>
+
+      <!-- Contenido de la pestaña de Llaves -->
+      <div class="tab-content" *ngIf="activeTab === 'keys'">
+        <!-- Sección de Generación de Llaves -->
+        <section class="section">
+          <div class="card">
+            <h2>Generar Par de Llaves</h2>
+            <p class="description">Genera un par de llaves pública y privada. La llave privada se descargará automáticamente.</p>
+            
+            <form [formGroup]="generateForm" (ngSubmit)="generateKeyPair()" class="form">
+              <div class="form-group">
+                <label for="generateAlias">Alias:</label>
+                <input 
+                  type="text" 
+                  id="generateAlias"
+                  formControlName="alias"
+                  placeholder="Ingresa un alias único"
+                  class="form-input"
+                  [class.error]="generateForm.get('alias')?.invalid && generateForm.get('alias')?.touched">
+                <div class="error-message" *ngIf="generateForm.get('alias')?.invalid && generateForm.get('alias')?.touched">
+                  <span *ngIf="generateForm.get('alias')?.errors?.['required']">El alias es requerido</span>
+                  <span *ngIf="generateForm.get('alias')?.errors?.['minlength']">El alias debe tener al menos 3 caracteres</span>
+                </div>
+              </div>
+              
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="generateForm.invalid || isGenerating">
+                <span *ngIf="isGenerating" class="loader"></span>
+                {{isGenerating ? 'Generando...' : 'Generar Llaves'}}
+              </button>
+            </form>
+
+            <div class="message success" *ngIf="generateMessage && !generateMessage.includes('Error')">
+              {{generateMessage}}
+            </div>
+            <div class="message error" *ngIf="generateMessage && generateMessage.includes('Error')">
+              {{generateMessage}}
+            </div>
+          </div>
+        </section>
+
+        <!-- Sección de Consulta de Llave Pública -->
+        <section class="section">
+          <div class="card">
+            <h2>Consultar Llave Pública</h2>
+            <p class="description">Consulta la llave pública asociada a un alias existente.</p>
+            
+            <form [formGroup]="consultForm" (ngSubmit)="consultPublicKey()" class="form">
+              <div class="form-group">
+                <label for="consultAlias">Alias:</label>
+                <input 
+                  type="text" 
+                  id="consultAlias"
+                  formControlName="alias"
+                  placeholder="Ingresa el alias de la llave"
+                  class="form-input"
+                  [class.error]="consultForm.get('alias')?.invalid && consultForm.get('alias')?.touched">
+                <div class="error-message" *ngIf="consultForm.get('alias')?.invalid && consultForm.get('alias')?.touched">
+                  <span *ngIf="consultForm.get('alias')?.errors?.['required']">El alias es requerido</span>
+                  <span *ngIf="consultForm.get('alias')?.errors?.['minlength']">El alias debe tener al menos 3 caracteres</span>
+                </div>
+              </div>
+              
+              <button 
+                type="submit" 
+                class="btn btn-secondary"
+                [disabled]="consultForm.invalid || isConsulting">
+                <span *ngIf="isConsulting" class="loader"></span>
+                {{isConsulting ? 'Consultando...' : 'Consultar Llave'}}
+              </button>
+            </form>
+
+            <div class="message success" *ngIf="consultMessage && !consultMessage.includes('Error')">
+              {{consultMessage}}
+            </div>
+            <div class="message error" *ngIf="consultMessage && consultMessage.includes('Error')">
+              {{consultMessage}}
+            </div>
+
+            <div class="public-key-result" *ngIf="publicKey">
+              <h3>Llave Pública:</h3>
+              <pre class="key-display">{{publicKey}}</pre>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Contenido de la pestaña de Archivos -->
+      <div class="tab-content" *ngIf="activeTab === 'files'">
+        <!-- Sección de Subida de Archivos -->
+        <section class="section">
+          <div class="card">
+            <h2>Subir Archivo</h2>
+            <p class="description">Sube un archivo para poder firmarlo posteriormente con tu llave privada.</p>
+            
+            <div class="file-upload-area">
+              <div class="upload-zone" 
+                   (dragover)="onDragOver($event)" 
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onFileDropped($event)"
+                   [class.dragover]="isDragOver">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7,10 12,15 17,10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <p>Arrastra y suelta un archivo aquí o</p>
+                <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none">
+                <button type="button" class="btn btn-outline" (click)="fileInput.click()">
+                  Seleccionar Archivo
+                </button>
               </div>
             </div>
+
+            <div class="message success" *ngIf="uploadMessage && !uploadMessage.includes('Error')">
+              {{uploadMessage}}
+            </div>
+            <div class="message error" *ngIf="uploadMessage && uploadMessage.includes('Error')">
+              {{uploadMessage}}
+            </div>
+          </div>
+        </section>
+
+        <!-- Sección de Archivos Disponibles -->
+        <section class="section">
+          <div class="card">
+            <h2>Archivos Disponibles</h2>
+            <p class="description">Lista de archivos que has subido y están disponibles para firmar.</p>
             
-            <button 
-              type="submit" 
-              class="btn btn-primary"
-              [disabled]="generateForm.invalid || isGenerating">
-              <span *ngIf="isGenerating" class="loader"></span>
-              {{isGenerating ? 'Generando...' : 'Generar Llaves'}}
+            <button class="btn btn-secondary mb-3" (click)="loadUserFiles()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23,4 23,10 17,10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Actualizar Lista
             </button>
-          </form>
 
-          <div class="message success" *ngIf="generateMessage && !generateMessage.includes('Error')">
-            {{generateMessage}}
-          </div>
-          <div class="message error" *ngIf="generateMessage && generateMessage.includes('Error')">
-            {{generateMessage}}
-          </div>
-        </div>
-      </section>
-
-      <!-- Sección de Consulta de Llave Pública -->
-      <section class="section">
-        <div class="card">
-          <h2>Consultar Llave Pública</h2>
-          <p class="description">Consulta la llave pública asociada a un alias existente.</p>
-          
-          <form [formGroup]="consultForm" (ngSubmit)="consultPublicKey()" class="form">
-            <div class="form-group">
-              <label for="consultAlias">Alias:</label>
-              <input 
-                type="text" 
-                id="consultAlias"
-                formControlName="alias"
-                placeholder="Ingresa el alias de la llave"
-                class="form-input"
-                [class.error]="consultForm.get('alias')?.invalid && consultForm.get('alias')?.touched">
-              <div class="error-message" *ngIf="consultForm.get('alias')?.invalid && consultForm.get('alias')?.touched">
-                <span *ngIf="consultForm.get('alias')?.errors?.['required']">El alias es requerido</span>
-                <span *ngIf="consultForm.get('alias')?.errors?.['minlength']">El alias debe tener al menos 3 caracteres</span>
+            <div class="files-grid" *ngIf="userFiles.length > 0">
+              <div class="file-card" *ngFor="let file of userFiles">
+                <div class="file-info">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                  </svg>
+                  <div class="file-details">
+                    <h4>{{file.fileName}}</h4>
+                    <p class="file-hash">Hash: {{file.hash.substring(0, 16)}}...</p>
+                  </div>
+                </div>
+                <div class="file-actions">
+                  <button class="btn btn-primary" (click)="openSignModal(file)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 15v4c0 1.1.9 2 2 2h14c0-1.1-.9-2-2-2v-4"></path>
+                      <path d="M8 10c0-.6.4-1 1-1h6c.6 0 1 .4 1 1v2h3l-4 4-4-4h3v-2H9v2h3l-4 4-4-4h3v-2z"></path>
+                    </svg>
+                    Firmar
+                  </button>
+                  <button class="btn btn-outline" (click)="viewFileSignatures(file)">
+                    Ver Firmas
+                  </button>
+                </div>
               </div>
             </div>
-            
-            <button 
-              type="submit" 
-              class="btn btn-secondary"
-              [disabled]="consultForm.invalid || isConsulting">
-              <span *ngIf="isConsulting" class="loader"></span>
-              {{isConsulting ? 'Consultando...' : 'Consultar Llave'}}
-            </button>
-          </form>
 
-          <div class="message success" *ngIf="consultMessage && !consultMessage.includes('Error')">
-            {{consultMessage}}
+            <div class="empty-state" *ngIf="userFiles.length === 0">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+              </svg>
+              <p>No tienes archivos subidos aún</p>
+              <p class="text-muted">Sube tu primer archivo para comenzar</p>
+            </div>
           </div>
-          <div class="message error" *ngIf="consultMessage && consultMessage.includes('Error')">
-            {{consultMessage}}
-          </div>
-
-          <div class="public-key-result" *ngIf="publicKey">
-            <h3>Llave Pública:</h3>
-            <pre class="key-display">{{publicKey}}</pre>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </main>
+
+  <!-- Modal para firmar archivo -->
+  <div class="modal-overlay" *ngIf="showSignModal" (click)="closeSignModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Firmar Archivo: {{selectedFile?.fileName}}</h3>
+        <button class="close-btn" (click)="closeSignModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="description">Selecciona tu llave privada (.pem) para firmar este archivo.</p>
+        
+        <div class="file-upload-area">
+          <input type="file" #privateKeyInput (change)="onPrivateKeySelected($event)" accept=".pem" style="display: none">
+          <button type="button" class="btn btn-outline" (click)="privateKeyInput.click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14,2 14,8 20,8"></polyline>
+            </svg>
+            Seleccionar Llave Privada (.pem)
+          </button>
+          <p *ngIf="selectedPrivateKey" class="selected-file">Archivo seleccionado: {{selectedPrivateKey.name}}</p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeSignModal()">Cancelar</button>
+          <button 
+            class="btn btn-primary" 
+            (click)="signFile()" 
+            [disabled]="!selectedPrivateKey || isSigning">
+            <span *ngIf="isSigning" class="loader"></span>
+            {{isSigning ? 'Firmando...' : 'Firmar Archivo'}}
+          </button>
+        </div>
+
+        <div class="message success" *ngIf="signMessage && !signMessage.includes('Error')">
+          {{signMessage}}
+        </div>
+        <div class="message error" *ngIf="signMessage && signMessage.includes('Error')">
+          {{signMessage}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Ver Firmas -->
+  <div class="modal-overlay" *ngIf="showSignaturesModal" (click)="closeSignaturesModal()">
+    <div class="modal large-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Firmas del Archivo: {{selectedFile?.fileName}}</h3>
+        <button class="close-btn" (click)="closeSignaturesModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="fileSignatures.length === 0" class="no-signatures">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p>Este archivo no tiene firmas digitales.</p>
+        </div>
+
+        <div *ngIf="fileSignatures.length > 0" class="signatures-list">
+          <div class="signature-card" *ngFor="let signature of fileSignatures; let i = index">
+            <div class="signature-header">
+              <h4>Firma #{{i + 1}}</h4>
+              <span class="signature-status verified">Válida</span>
+            </div>
+            
+            <div class="signature-info">
+              <div class="info-row">
+                <strong>Usuario ID:</strong>
+                <span>{{signature.userId}}</span>
+              </div>
+              
+              <div class="info-row">
+                <strong>ID de Llave:</strong>
+                <span>{{signature.keyId}}</span>
+              </div>
+              
+              <div class="info-row signature-value">
+                <strong>Firma Digital:</strong>
+                <div class="signature-display">
+                  <pre>{{signature.signature}}</pre>
+                  <button class="btn btn-sm btn-outline" (click)="copyToClipboard(signature.signature)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copiar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="closeSignaturesModal()">Cerrar</button>
+          <button class="btn btn-primary" (click)="verifyAllSignatures()" *ngIf="fileSignatures.length > 0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+            Verificar Todas las Firmas
+          </button>
+        </div>
+
+        <div class="message success" *ngIf="verificationMessage && !verificationMessage.includes('Error')">
+          {{verificationMessage}}
+        </div>
+        <div class="message error" *ngIf="verificationMessage && verificationMessage.includes('Error')">
+          {{verificationMessage}}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

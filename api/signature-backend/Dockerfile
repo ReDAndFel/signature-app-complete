@@ -16,6 +16,9 @@ COPY . .
 # Compila TypeScript a JavaScript y muestra contenido generado
 RUN npm run build && ls -R dist
 
+# Crea el directorio uploads con permisos adecuados
+RUN mkdir -p uploads && chmod 755 uploads
+
 # Expone el puerto
 EXPOSE 3000
 

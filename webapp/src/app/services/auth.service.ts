@@ -40,4 +40,12 @@ export class AuthService {
   loginWithGoogle(): void {
     window.location.href = 'https://localhost:3000/auth/google';
   }
+
+  logout(): Observable<any> {
+    return this.http.post('/auth/logout', {}, { withCredentials: true }).pipe(
+      tap(() => {
+        this.setUser(null);
+      })
+    );
+  }
 }

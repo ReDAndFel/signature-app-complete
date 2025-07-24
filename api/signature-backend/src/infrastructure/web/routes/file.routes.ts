@@ -17,6 +17,7 @@ const upload = multer({ storage });
 const router = Router();
 
 router.post("", authMiddleware, upload.single("file"), fileController.upload);
+router.get("/user", authMiddleware, fileController.listByUserId);
 router.get("/:id", authMiddleware, fileController.getById);
 
 export default router;
