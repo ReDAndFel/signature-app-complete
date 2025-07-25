@@ -39,6 +39,14 @@ export class SequelizeFileRepository implements FileRepository {
         return files.map(file => file.toJSON() as File);
     }
 
+    async listAllFiles(): Promise<File[]> {
+        // Lista TODOS los archivos sin filtrar por usuario
+        const files = await SequelizeFileModel.findAll({
+            order: [['id', 'DESC']] // Los más recientes primero
+        });
+        return files.map(file => file.toJSON() as File);
+    }
+
     async updateFileHash(id: number, hash: string): Promise<void> {
         await SequelizeFileModel.update({ hash }, { where: { id } });
     }

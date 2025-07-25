@@ -40,11 +40,10 @@ export class FileController {
         }
     }
 
-    listByUserId = async (req: Request, res: Response) => {
+    listByUserId = async (_: unknown, res: Response) => {
         try {
-            const userId = req.userId;
-            if (!userId) return res.status(400).json({ error: "User ID is required" });
-            const files = await this.listFilesByUserId.execute(+userId);
+            // Ahora lista todos los archivos para que todos los usuarios puedan verlos y firmarlos
+            const files = await this.listFilesByUserId.execute();
             return res.status(200).json(files);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
