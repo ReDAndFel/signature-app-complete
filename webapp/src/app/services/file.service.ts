@@ -8,6 +8,11 @@ export interface FileItem {
   hash: string;
   path: string;
   userId: number;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
 
 export interface FileSignature {
@@ -15,6 +20,12 @@ export interface FileSignature {
   keyId: number;
   userId: number;
   fileId: number;
+  createdAt?: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
 
 @Injectable({
@@ -32,9 +43,9 @@ export class FileService {
     return this.http.post<FileItem>(`${this.baseUrl}/file`, formData);
   }
 
-  // Listar archivos del usuario actual
+  // Listar todos los archivos (disponibles para cualquier usuario)
   getUserFiles(): Observable<FileItem[]> {
-    return this.http.get<FileItem[]>(`${this.baseUrl}/file/user`);
+    return this.http.get<FileItem[]>(`${this.baseUrl}/file/accesible`);
   }
 
   // Obtener archivo por ID

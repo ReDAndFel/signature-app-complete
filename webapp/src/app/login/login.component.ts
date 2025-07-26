@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,6 +13,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private notificationService: NotificationService,
     private router: Router
   ) { }
 
@@ -31,6 +33,9 @@ export class LoginComponent implements OnInit {
       },
       error: err => {
         console.log('No autenticado o error al verificar:', err);
+        if (err.status === 0) {
+          this.notificationService.showError('Error de conexión', 'No se puede conectar al servidor. Verifica tu conexión a internet.');
+        }
         this.isLoading = false;
       }
     });

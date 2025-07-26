@@ -29,6 +29,7 @@ import { ShareFile } from "./application/use-cases/ShareFile";
 import { RevokeFileAccess } from "./application/use-cases/RevokeFileAccess";
 import { SequelizeSharedFileRepository } from "./infrastructure/db/SequelizeSharedFileRepository";
 import { SharedFileController } from "./infrastructure/web/controllers/SharedFileController";
+import { ListUsers } from "./application/use-cases/ListUsers";
 
 // Repositories
 const keyRepository = new SequelizeKeyRepository();
@@ -50,9 +51,10 @@ const getPublicKeyByAlias = new GetPublicKeyByAlias(keyRepository);
 const saveUser = new SaveUser(userRepository);
 const getUserByEmail = new GetUserByEmail(userRepository);
 const getUserById = new GetUserById(userRepository);
+const listUsers = new ListUsers(userRepository);
 const uploadFile = new UploadFile(fileRepository);
 const getFileById = new GetFileById(fileRepository);
-const listAccessibleFiles = new ListAccessibleFiles(fileRepository);
+const listAccessibleFiles = new ListAccessibleFiles(fileRepository, userRepository);
 
 const signFile = new SignFile(fileSignatureRepository, fileRepository);
 const getSignatureById = new GetSignatureById(fileSignatureRepository);
@@ -74,7 +76,7 @@ const keyController = new KeyController(
   getPublicKeyByUserId
 );
 const oAuthController = new OAuthController(saveUser, jwtService);
-const userController = new UserController(getUserByEmail, getUserById);
+const userController = new UserController(getUserByEmail, getUserById, listUsers);
 const fileController = new FileController(
   uploadFile,
   getFileById,

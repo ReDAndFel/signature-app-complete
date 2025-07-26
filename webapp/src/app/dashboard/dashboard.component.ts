@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService, User } from '../services/auth.service';
 import { KeyService } from '../services/key.service';
 import { FileService, FileItem, FileSignature } from '../services/file.service';
+import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -13,6 +14,7 @@ import { Observable } from 'rxjs';
 })
 export class DashboardComponent implements OnInit {
   currentUser$: Observable<User | null>;
+  currentUser: User | null = null;
   
   // Tab management
   activeTab: 'keys' | 'files' = 'keys';
@@ -43,11 +45,16 @@ export class DashboardComponent implements OnInit {
   fileSignatures: FileSignature[] = [];
   verificationMessage: string = '';
 
+  // File sharing
+  shareModalOpen: boolean = false;
+  selectedFileForSharing: FileItem | null = null;
+
   constructor(
     private authService: AuthService,
     private keyService: KeyService,
     private fileService: FileService,
     private formBuilder: FormBuilder,
+    private notificationService: NotificationService,
     private router: Router
   ) {
     this.currentUser$ = this.authService.user$;
@@ -71,6 +78,7 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/login']);
       } else {
         console.log('Current user:', user);
+        this.currentUser = user; // Store current user
       }
     });
 
@@ -82,6 +90,7 @@ export class DashboardComponent implements OnInit {
       },
       error: err => {
         console.log('Error getting current user:', err);
+        this.notificationService.showError('Sesión expirada', 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.');
         this.router.navigate(['/login']);
       }
     });
@@ -104,10 +113,12 @@ export class DashboardComponent implements OnInit {
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {
+        this.notificationService.showSuccess('Sesión cerrada', 'Has cerrado sesión exitosamente');
         this.router.navigate(['/login']);
       },
       error: (error) => {
         console.error('Error during logout:', error);
+        this.notificationService.showWarning('Cerrando sesión', 'Hubo un problema al cerrar sesión, pero se cerró localmente');
         // Incluso si hay error, limpiamos localmente y redirigimos
         this.router.navigate(['/login']);
       }
@@ -125,12 +136,14 @@ export class DashboardComponent implements OnInit {
         next: (blob) => {
           this.downloadFile(blob, `${alias}.pem`);
           this.generateMessage = 'Llave privada generada y descargada exitosamente';
+          this.notificationService.showSuccess('Par de llaves generado', `El par de llaves para ${alias} se ha generado exitosamente`);
           this.generateForm.reset();
           this.isGenerating = false;
         },
         error: (error) => {
           console.error('Error generating key pair:', error);
           this.generateMessage = 'Error al generar las llaves';
+          this.notificationService.showError('Error al generar llaves', 'No se pudo generar el par de llaves. Por favor intenta nuevamente.');
           this.isGenerating = false;
         }
       });
@@ -148,11 +161,13 @@ export class DashboardComponent implements OnInit {
         next: (response) => {
           this.publicKey = response.publicKey || 'No se encontró la llave pública';
           this.consultMessage = 'Llave pública obtenida exitosamente';
+          this.notificationService.showSuccess('Llave pública encontrada', `La llave pública para ${alias} se obtuvo exitosamente`);
           this.isConsulting = false;
         },
         error: (error) => {
           console.error('Error getting public key:', error);
           this.consultMessage = 'Error al consultar la llave pública';
+          this.notificationService.showError('Llave no encontrada', `No se pudo encontrar la llave pública para ${alias}`);
           this.publicKey = '';
           this.isConsulting = false;
         }
@@ -198,22 +213,28 @@ export class DashboardComponent implements OnInit {
     this.fileService.uploadFile(file).subscribe({
       next: (uploadedFile) => {
         this.uploadMessage = `Archivo ${uploadedFile.fileName} subido exitosamente`;
-        this.loadUserFiles(); // Recargar la lista de archivos
+        this.notificationService.showSuccess('Archivo subido', `El archivo ${uploadedFile.fileName} se ha subido exitosamente`);
+        this.loadUserFiles(true); // Recargar la lista de todos los archivos
       },
       error: (error) => {
         console.error('Error uploading file:', error);
         this.uploadMessage = 'Error al subir el archivo';
+        this.notificationService.showError('Error al subir archivo', `No se pudo subir el archivo ${file.name}. Por favor intenta nuevamente.`);
       }
     });
   }
 
-  loadUserFiles(): void {
+  loadUserFiles(showErrorNotification: boolean = false): void {
     this.fileService.getUserFiles().subscribe({
       next: (files) => {
+        // Ahora carga TODOS los archivos para que cualquier usuario pueda firmarlos
         this.userFiles = files;
       },
       error: (error) => {
-        console.error('Error loading user files:', error);
+        console.error('Error loading files:', error);
+        if (showErrorNotification) {
+          this.notificationService.showError('Error al cargar archivos', 'No se pudieron cargar los archivos. Por favor recarga la página.');
+        }
         this.userFiles = [];
       }
     });
@@ -250,6 +271,7 @@ export class DashboardComponent implements OnInit {
       this.fileService.signFile(this.selectedFile.id!, this.selectedPrivateKey).subscribe({
         next: (signature) => {
           this.signMessage = 'Archivo firmado exitosamente';
+          this.notificationService.showSuccess('Archivo firmado', `El archivo ${this.selectedFile?.fileName} ha sido firmado exitosamente`);
           this.isSigning = false;
           // Cerrar el modal después de 2 segundos
           setTimeout(() => {
@@ -259,6 +281,7 @@ export class DashboardComponent implements OnInit {
         error: (error) => {
           console.error('Error signing file:', error);
           this.signMessage = 'Error al firmar el archivo';
+          this.notificationService.showError('Error al firmar', `No se pudo firmar el archivo ${this.selectedFile?.fileName}. Verifica que la llave privada sea correcta.`);
           this.isSigning = false;
         }
       });
@@ -274,10 +297,13 @@ export class DashboardComponent implements OnInit {
         this.fileSignatures = signatures;
         this.showSignaturesModal = true;
         this.verificationMessage = '';
+        if (signatures.length === 0) {
+          this.notificationService.showInfo('Sin firmas', `El archivo ${file.fileName} no tiene firmas digitales aún`);
+        }
       },
       error: (error) => {
         console.error('Error getting file signatures:', error);
-        alert('Error al obtener las firmas del archivo');
+        this.notificationService.showError('Error al cargar firmas', `No se pudieron cargar las firmas del archivo ${file.fileName}`);
       }
     });
   }
@@ -300,12 +326,14 @@ export class DashboardComponent implements OnInit {
 
   verifyAllSignatures(): void {
     if (!this.selectedFile || this.fileSignatures.length === 0) {
+      this.notificationService.showWarning('Sin firmas', 'No hay firmas disponibles para verificar');
       return;
     }
 
     // Por ahora, simplemente mostrar un mensaje de verificación exitosa
     // En una implementación real, harías una llamada al backend para verificar cada firma
     this.verificationMessage = `✅ Todas las ${this.fileSignatures.length} firma(s) han sido verificadas correctamente.`;
+    this.notificationService.showSuccess('Firmas verificadas', `Todas las ${this.fileSignatures.length} firma(s) han sido verificadas correctamente`);
   }
 
   private downloadFile(blob: Blob, filename: string): void {
@@ -315,5 +343,34 @@ export class DashboardComponent implements OnInit {
     link.download = filename;
     link.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  // Métodos para manejar el modal de compartir
+  openShareModal(file: FileItem): void {
+    this.selectedFileForSharing = file;
+    this.shareModalOpen = true;
+  }
+
+  closeShareModal(): void {
+    this.shareModalOpen = false;
+    this.selectedFileForSharing = null;
+  }
+
+  onFileShared(): void {
+    // Mostrar mensaje de éxito
+    console.log('Archivo compartido exitosamente');
+    this.notificationService.showSuccess('Archivo compartido', `El archivo ${this.selectedFileForSharing?.fileName} ha sido compartido exitosamente`);
+    // Opcionalmente recargar la lista de archivos
+    this.loadUserFiles(true);
+    this.closeShareModal();
+  }
+
+  // Verificar si el usuario actual es el creador del archivo
+  isFileOwner(file: FileItem): boolean {
+    if (!this.currentUser) {
+      return false;
+    }
+    // Convert string id to number for comparison
+    return file.userId === parseInt(this.currentUser.id);
   }
 }

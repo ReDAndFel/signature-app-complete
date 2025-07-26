@@ -184,7 +184,7 @@
         <!-- Sección de Archivos Disponibles -->
         <section class="section">
           <div class="card">
-            <h2>📂 Todos los Archivos</h2>
+            <h2>Todos los Archivos</h2>
             <p class="description">Archivos subidos por todos los usuarios. Puedes firmar cualquier archivo disponible.</p>
             
             <button class="btn btn-secondary mb-3" (click)="loadUserFiles()">
@@ -204,8 +204,7 @@
                   </svg>
                   <div class="file-details">
                     <h4>{{file.fileName}}</h4>
-                    <p class="file-hash">Hash: {{file.hash.substring(0, 16)}}...</p>
-                    <p class="file-owner">📤 Subido por Usuario ID: {{file.userId}}</p>
+                    <p class="file-owner">Subido por: {{file.user?.name || 'Usuario ' + file.userId}}</p>
                   </div>
                 </div>
                 <div class="file-actions">
@@ -215,6 +214,14 @@
                       <path d="M8 10c0-.6.4-1 1-1h6c.6 0 1 .4 1 1v2h3l-4 4-4-4h3v-2H9v2h3l-4 4-4-4h3v-2z"></path>
                     </svg>
                     Firmar
+                  </button>
+                  <button class="btn btn-secondary" (click)="openShareModal(file)" *ngIf="isFileOwner(file)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                      <polyline points="16,6 12,2 8,6"></polyline>
+                      <line x1="12" y1="2" x2="12" y2="15"></line>
+                    </svg>
+                    Compartir
                   </button>
                   <button class="btn btn-outline" (click)="viewFileSignatures(file)">
                     Ver Firmas
@@ -306,27 +313,18 @@
             
             <div class="signature-info">
               <div class="info-row">
-                <strong>Usuario ID:</strong>
-                <span>{{signature.userId}}</span>
+                <strong>Usuario:</strong>
+                <span>{{signature.user?.name || 'Usuario ' + signature.userId}}</span>
               </div>
               
               <div class="info-row">
-                <strong>ID de Llave:</strong>
-                <span>{{signature.keyId}}</span>
+                <strong>Correo:</strong>
+                <span>{{signature.user?.email || 'No disponible'}}</span>
               </div>
               
-              <div class="info-row signature-value">
-                <strong>Firma Digital:</strong>
-                <div class="signature-display">
-                  <pre>{{signature.signature}}</pre>
-                  <button class="btn btn-sm btn-outline" (click)="copyToClipboard(signature.signature)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    Copiar
-                  </button>
-                </div>
+              <div class="info-row">
+                <strong>Fecha de firma:</strong>
+                <span>{{signature.createdAt | date:'dd/MM/yyyy HH:mm:ss' || 'No disponible'}}</span>
               </div>
             </div>
           </div>
@@ -334,12 +332,6 @@
 
         <div class="modal-actions">
           <button class="btn btn-secondary" (click)="closeSignaturesModal()">Cerrar</button>
-          <button class="btn btn-primary" (click)="verifyAllSignatures()" *ngIf="fileSignatures.length > 0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20,6 9,17 4,12"></polyline>
-            </svg>
-            Verificar Todas las Firmas
-          </button>
         </div>
 
         <div class="message success" *ngIf="verificationMessage && !verificationMessage.includes('Error')">
@@ -352,3 +344,12 @@
     </div>
   </div>
 </div>
+
+<!-- Modal para compartir archivos -->
+<app-share-modal 
+  [isOpen]="shareModalOpen"
+  [fileId]="selectedFileForSharing?.id || null"
+  [fileName]="selectedFileForSharing?.fileName || ''"
+  (close)="closeShareModal()"
+  (shared)="onFileShared()">
+</app-share-modal>

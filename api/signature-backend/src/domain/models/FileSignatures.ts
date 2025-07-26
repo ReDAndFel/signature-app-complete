@@ -4,5 +4,11 @@ export class FileSignatures {
         public keyId: number,
         public userId: number,
         public fileId: number,
+        public createdAt?: Date,
+        public user?: {
+            id: number;
+            name: string;
+            email: string;
+        }
     ) {}
 }

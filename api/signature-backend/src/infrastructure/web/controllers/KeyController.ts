@@ -33,6 +33,10 @@ export class KeyController {
 
     const keyPair = await this.getPublicKeyByAlias.execute(alias);
 
+    if (!keyPair) {
+      return res.status(404).json({ message: `No se encontró una llave pública con el alias: ${alias}` });
+    }
+
     res.send(keyPair);
   };
 

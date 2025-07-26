@@ -7,6 +7,8 @@ export interface FileSignatureAtributes {
   userId: number;
   keyId: number;
   signature: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface SequelizeFileSignatureCreationAttributes
@@ -47,6 +49,18 @@ export const SequelizeFileSignatureModel =
         allowNull: false,
         field: "file_id",
       },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        field: "created_at",
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        field: "updated_at",
+        defaultValue: DataTypes.NOW,
+      },
     },
-    { tableName: "file_signatures", timestamps: false }
+    { tableName: "file_signatures", timestamps: true }
   );

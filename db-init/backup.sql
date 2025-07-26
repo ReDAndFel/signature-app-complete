@@ -47,6 +47,8 @@ CREATE TABLE public.file_signatures (
     file_id INTEGER NOT NULL,
     key_id INTEGER NOT NULL,
     signature TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     CONSTRAINT fk_signature_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE,
     CONSTRAINT fk_signature_file FOREIGN KEY (file_id) REFERENCES public.files(id) ON DELETE CASCADE,
     CONSTRAINT fk_signature_key FOREIGN KEY (key_id) REFERENCES public.keys(id) ON DELETE CASCADE

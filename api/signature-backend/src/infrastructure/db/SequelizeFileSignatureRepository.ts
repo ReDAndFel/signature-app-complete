@@ -2,6 +2,7 @@ import {
   SequelizeFileModel,
   SequelizeFileSignatureModel,
   SequelizeKeyModel,
+  SequelizeUserModel,
 } from "./models";
 import { FileSignatures } from "../../domain/models/FileSignatures";
 import { FileSignatureRepository } from "../../domain/repositories/FileSignatureRepository";
@@ -74,11 +75,34 @@ export class SequelizeFileSignatureRepository
   }
 
   async listSignaturesByFileId(fileId: number): Promise<FileSignatures[]> {
-    // Listar firmas por ID de archivo
+    // Listar firmas por ID de archivo incluyendo información del usuario
     const signatures = await SequelizeFileSignatureModel.findAll({
       where: { fileId: fileId },
+      include: [
+        {
+          model: SequelizeUserModel,
+          as: "user",
+          attributes: ["id", "name", "email"]
+        }
+      ],
+      order: [["createdAt", "DESC"]]
     });
-    return signatures.map((signature) => signature.toJSON() as FileSignatures);
+    
+    return signatures.map((signature: any) => {
+      const signatureData = signature.toJSON();
+      return new FileSignatures(
+        signatureData.signature,
+        signatureData.keyId,
+        signatureData.userId,
+        signatureData.fileId,
+        signatureData.createdAt,
+        signatureData.user ? {
+          id: signatureData.user.id,
+          name: signatureData.user.name,
+          email: signatureData.user.email
+        } : undefined
+      );
+    });
   }
 
   async listSignaturesByUserId(userId: number): Promise<FileSignatures[]> {

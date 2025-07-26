@@ -1,0 +1,109 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Compartir Archivo: {{ fileName }}</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Buscador -->
+      <div class="search-container">
+        <input 
+          type="text" 
+          placeholder="Buscar usuarios..." 
+          (input)="onSearch($event)"
+          [value]="searchTerm"
+          class="search-input"
+        >
+      </div>
+      
+      <!-- Lista de usuarios -->
+      <div class="users-list" *ngIf="!loading">
+        <!-- Controles de selección múltiple -->
+        <div class="selection-controls" *ngIf="users.length > 0">
+          <div class="selection-buttons">
+            <button class="select-btn" (click)="selectAllUsers()">Seleccionar Todos</button>
+            <button class="select-btn" (click)="deselectAllUsers()">Deseleccionar Todos</button>
+          </div>
+          <div class="selected-count" *ngIf="hasSelectedUsers">
+            {{ selectedUsers.size }} usuario(s) seleccionado(s)
+          </div>
+        </div>
+
+        <div class="user-item" *ngFor="let user of users">
+          <div class="user-selection">
+            <input 
+              type="checkbox" 
+              [id]="'user-' + user.id"
+              [checked]="isUserSelected(user.id)"
+              (change)="toggleUserSelection(user.id)"
+              class="user-checkbox"
+            >
+            <label [for]="'user-' + user.id" class="checkbox-label"></label>
+          </div>
+          <div class="user-info">
+            <img [src]="user.avatarUrl || '/assets/default-avatar.svg'" 
+                 [alt]="user.name" 
+                 class="user-avatar">
+            <div class="user-details">
+              <span class="user-name">{{ user.name }}</span>
+              <span class="user-email">{{ user.email }}</span>
+            </div>
+          </div>
+          <button 
+            class="share-btn individual" 
+            (click)="shareWithUser(user)"
+            [disabled]="sharing"
+            title="Compartir solo con este usuario"
+          >
+            {{ sharing ? 'Compartiendo...' : 'Compartir' }}
+          </button>
+        </div>
+        
+        <!-- Botón para compartir con usuarios seleccionados -->
+        <div class="multiple-share-section" *ngIf="hasSelectedUsers">
+          <button 
+            class="share-btn multiple" 
+            (click)="shareWithSelectedUsers()"
+            [disabled]="sharing"
+          >
+            {{ sharing ? 'Compartiendo...' : 'Compartir con ' + selectedUsers.size + ' usuario(s)' }}
+          </button>
+        </div>
+        
+        <!-- Mensaje cuando no hay usuarios -->
+        <div class="no-users" *ngIf="users.length === 0">
+          No se encontraron usuarios
+        </div>
+      </div>
+      
+      <!-- Loading -->
+      <div class="loading" *ngIf="loading">
+        Cargando usuarios...
+      </div>
+      
+      <!-- Paginación -->
+      <div class="pagination" *ngIf="!loading && users.length > 0">
+        <button 
+          class="pagination-btn" 
+          (click)="prevPage()" 
+          [disabled]="!hasPrevPage"
+        >
+          Anterior
+        </button>
+        
+        <span class="page-info">
+          Página {{ currentPage }} de {{ Math.ceil(totalUsers / limit) }}
+        </span>
+        
+        <button 
+          class="pagination-btn" 
+          (click)="nextPage()" 
+          [disabled]="!hasNextPage"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
