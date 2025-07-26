@@ -2,6 +2,7 @@ import { SequelizeUserModel } from "./SequelizeUserModel";
 import { SequelizeKeyModel } from "./SequelizeKeyModel";
 import { SequelizeFileModel } from "./SequelizeFileModel";
 import { SequelizeFileSignatureModel } from "./SequelizeFileSignatureModel";
+import { SequelizeSharedFileModel } from "./SequelizeSharedFile";
 
 // Relación: Un usuario tiene muchas llaves
 SequelizeUserModel.hasMany(SequelizeKeyModel, {
@@ -77,5 +78,6 @@ export {
   SequelizeUserModel,
   SequelizeKeyModel,
   SequelizeFileModel,
-  SequelizeFileSignatureModel
+  SequelizeFileSignatureModel,
+  SequelizeSharedFileModel,
 };

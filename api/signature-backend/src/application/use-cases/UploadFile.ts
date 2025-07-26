@@ -12,16 +12,15 @@ export class UploadFile {
 
     // Save the file using the repository
     const savedFile = await this.fileRepo.saveFile(file, userId);
-    
+
     return savedFile;
   }
 
   private isValidFile(file: Express.Multer.File): boolean {
-    
-    if ( !file ) {
-      return false; // Basic validation for file properties
+    if (!file) {
+      return false;
     }
 
-    return true; // Placeholder for actual validation logic
+    return true;
   }
 }

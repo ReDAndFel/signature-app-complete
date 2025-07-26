@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS public.keys;
 DROP TABLE IF EXISTS public.users;
 DROP TABLE IF EXISTS public.files;
 DROP TABLE IF EXISTS public.file_signatures;
+DROP TABLE IF EXISTS public.shared_files;
 
 CREATE TABLE public.users (
   id SERIAL PRIMARY KEY,
@@ -52,3 +53,16 @@ CREATE TABLE public.file_signatures (
 );
 
 ALTER TABLE public.file_signatures OWNER TO admin;
+
+
+CREATE TABLE public.shared_files (
+  id SERIAL PRIMARY KEY,
+  file_id INTEGER NOT NULL,
+  owner_user_id INTEGER NOT NULL,
+  shared_with_user_id INTEGER NOT NULL,
+  CONSTRAINT fk_shared_file FOREIGN KEY (file_id) REFERENCES public.files(id) ON DELETE CASCADE,
+  CONSTRAINT fk_owner_user FOREIGN KEY (owner_user_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_shared_with_user FOREIGN KEY (shared_with_user_id) REFERENCES public.users(id) ON DELETE CASCADE
+);
+
+ALTER TABLE public.shared_files OWNER TO admin;
